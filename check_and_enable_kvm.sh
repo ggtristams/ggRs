@@ -33,4 +33,8 @@ else
   fi
 fi
 
+# Display the last few KVM-related messages from the kernel log
+echo "Displaying the last few KVM-related messages from the kernel log..."
+dmesg | grep kvm | tail
+
 echo "KVM is set up and ready to use."
