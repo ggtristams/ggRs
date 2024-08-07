@@ -137,6 +137,14 @@ compare_configs() {
   echo "$current"
   echo
 
+  echo "Interfaces that are UP:"
+  echo "$current" | grep 'UP'
+  echo
+
+  echo "Interfaces that are DOWN:"
+  echo "$current" | grep -v 'UP'
+  echo
+
   while IFS= read -r line; do
     iface=$(echo "$line" | awk '{print $1}')
     method=$(echo "$line" | awk '{print $2}')
