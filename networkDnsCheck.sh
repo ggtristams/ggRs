@@ -80,7 +80,7 @@ parse_interfaces_config() {
 # Function to extract current interface details from ip a
 parse_current_status() {
   echo "$CURRENT_STATUS" | awk '
-  /^([0-9]+):/ { iface=$2; sub(/:/, "", iface) }
+  /^(.*):/ { iface=$2 }
   /inet / && iface {
     split($2, a, "/")
     address=a[1]
@@ -150,7 +150,7 @@ compare_configs() {
     fi
 
     current_address=$(echo "$current_line" | awk '{print $2}')
-    current_state=$(echo "$current_line" | awk '{print $5}')
+    current_state=$(echo "$current_line" | awk '{print $4}')
 
     if [ "$method" == "static" ] && [ "$address" != "$current_address" ]; then
       echo "Interface $iface has mismatched IP. Configured: $address, Current: $current_address"
@@ -179,12 +179,9 @@ parse_resolv_conf
 echo
 echo "Checking for interfaces that are DOWN or UNKNOWN..."
 echo "$CURRENT_STATUS" | awk '
-/^[0-9]+: / {
-  iface=$2
-  sub(/:/, "", iface)
-  state=$5
-  if (state == "DOWN" || state == "UNKNOWN") {
-    print "Interface " iface " is " state
+  /:.*state (DOWN|UNKNOWN)/ {
+    iface=$2
+    state=$9
+    print iface " is " state
   }
-}
 '
