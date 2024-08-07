@@ -80,7 +80,8 @@ parse_interfaces_config() {
 # Function to extract current interface details from ip a
 parse_current_status() {
   echo "$CURRENT_STATUS" | awk '
-  /^(.*):/ { iface=$2 }
+  BEGIN { iface="" }
+  /^[0-9]+: / { iface=$2; sub(/:/, "", iface) }
   /inet / && iface {
     split($2, a, "/")
     address=a[1]
@@ -92,6 +93,7 @@ parse_current_status() {
   /state / && iface {
     state=$9
   }
+  { if (/mtu/ && iface) state=$4 }
   /^$/ {
     if (iface) {
       print iface, address, address6, state
@@ -123,8 +125,6 @@ parse_resolv_conf() {
 
 # Compare the configurations
 compare_configs() {
-  echo
-
   echo "Checking network configuration discrepancies..."
 
   config=$(parse_interfaces_config)
