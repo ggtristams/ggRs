@@ -80,8 +80,7 @@ parse_interfaces_config() {
 # Function to extract current interface details from ip a
 parse_current_status() {
   echo "$CURRENT_STATUS" | awk '
-  BEGIN { iface="" }
-  /^[0-9]+: / { iface=$2; sub(/:/, "", iface) }
+  /^([0-9]+):/ { iface=$2; sub(/:/, "", iface) }
   /inet / && iface {
     split($2, a, "/")
     address=a[1]
@@ -93,7 +92,6 @@ parse_current_status() {
   /state / && iface {
     state=$9
   }
-  { if (/mtu/ && iface) state=$4 }
   /^$/ {
     if (iface) {
       print iface, address, address6, state
@@ -137,14 +135,6 @@ compare_configs() {
   echo "$current"
   echo
 
-  echo "Interfaces that are UP:"
-  echo "$current" | grep 'UP'
-  echo
-
-  echo "Interfaces that are DOWN:"
-  echo "$current" | grep -v 'UP'
-  echo
-
   while IFS= read -r line; do
     iface=$(echo "$line" | awk '{print $1}')
     method=$(echo "$line" | awk '{print $2}')
@@ -160,7 +150,7 @@ compare_configs() {
     fi
 
     current_address=$(echo "$current_line" | awk '{print $2}')
-    current_state=$(echo "$current_line" | awk '{print $4}')
+    current_state=$(echo "$current_line" | awk '{print $5}')
 
     if [ "$method" == "static" ] && [ "$address" != "$current_address" ]; then
       echo "Interface $iface has mismatched IP. Configured: $address, Current: $current_address"
@@ -184,3 +174,17 @@ compare_configs
 echo
 echo "Checking DNS configuration in $RESOLV_CONF_FILE..."
 parse_resolv_conf
+
+# Check for interfaces that are DOWN or UNKNOWN
+echo
+echo "Checking for interfaces that are DOWN or UNKNOWN..."
+echo "$CURRENT_STATUS" | awk '
+/^[0-9]+: / {
+  iface=$2
+  sub(/:/, "", iface)
+  state=$5
+  if (state == "DOWN" || state == "UNKNOWN") {
+    print "Interface " iface " is " state
+  }
+}
+'
