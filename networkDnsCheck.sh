@@ -121,6 +121,12 @@ parse_resolv_conf() {
   ' "$RESOLV_CONF_FILE"
 }
 
+# Function to show nmcli device details
+show_nmcli_details() {
+  echo "Checking NetworkManager details..."
+  nmcli device show eth0
+}
+
 # Compare the configurations
 compare_configs() {
   echo "Checking network configuration discrepancies..."
@@ -175,13 +181,6 @@ echo
 echo "Checking DNS configuration in $RESOLV_CONF_FILE..."
 parse_resolv_conf
 
-# Check for interfaces that are DOWN or UNKNOWN
+# Show nmcli device details
 echo
-echo "Checking for interfaces that are DOWN or UNKNOWN..."
-echo "$CURRENT_STATUS" | awk '
-  /:.*state (DOWN|UNKNOWN)/ {
-    iface=$2
-    state=$9
-    print iface " is " state
-  }
-'
+show_nmcli_details
