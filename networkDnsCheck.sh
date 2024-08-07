@@ -123,7 +123,7 @@ parse_resolv_conf() {
 
 # Compare the configurations
 compare_configs() {
-  print "==============================================="
+  echo
 
   echo "Checking network configuration discrepancies..."
 
