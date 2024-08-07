@@ -123,6 +123,8 @@ parse_resolv_conf() {
 
 # Compare the configurations
 compare_configs() {
+  echo "==============================================="
+
   echo "Checking network configuration discrepancies..."
 
   config=$(parse_interfaces_config)
