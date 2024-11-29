@@ -121,6 +121,12 @@ parse_resolv_conf() {
   ' "$RESOLV_CONF_FILE"
 }
 
+# Function to show nmcli device details
+show_nmcli_details() {
+  echo "Checking NetworkManager details..."
+  nmcli device show eth0
+}
+
 # Compare the configurations
 compare_configs() {
   echo "Checking network configuration discrepancies..."
@@ -174,3 +180,7 @@ compare_configs
 echo
 echo "Checking DNS configuration in $RESOLV_CONF_FILE..."
 parse_resolv_conf
+
+# Show nmcli device details
+echo
+show_nmcli_details
